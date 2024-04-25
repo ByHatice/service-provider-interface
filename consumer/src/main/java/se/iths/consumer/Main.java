@@ -85,7 +85,7 @@ public class Main {
         ServiceLoader<TemperatureConverter> loader = ServiceLoader.load(TemperatureConverter.class);
         for (TemperatureConverter converter : loader) {
             if (converter.getClass().getAnnotation(Scale.class).name().equals(conversion)) {
-                System.out.println(converter.converter(value) + "/n");
+                System.out.println(converter.converter(value) + "\n");
             }
         }
     }
