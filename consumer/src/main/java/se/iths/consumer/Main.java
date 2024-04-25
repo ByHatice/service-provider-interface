@@ -1,5 +1,6 @@
 package se.iths.consumer;
 
+import se.iths.service.Scale;
 import se.iths.service.TemperatureConverter;
 import java.util.*;
 
@@ -10,37 +11,42 @@ public class Main {
 
     public static void main(String[] args) {
 
-        inputMenu();
-        switch (choice) {
-            case 1 -> {
-                int celsiusF = getInput("Celsius", "Fahrenheit");
-                loadConverter(celsiusF);
+        do {
+            inputMenu();
+            switch (choice) {
+                case 1 -> {
+                    int celsiusF = getInput("Celsius", "Fahrenheit");
+                    loadConverter("Celsius to Fahrenheit", celsiusF);
+                }
+                case 2 -> {
+                    int celsiusK = getInput("Celsius", "Kelvin");
+                    loadConverter("Celsius to Kelvin", celsiusK);
+                }
+                case 3 -> {
+                    int fahrenheitC = getInput("Fahrenheit", "Celsius");
+                    loadConverter("Fahrenheit to Celsius", fahrenheitC);
+                }
+                case 4 -> {
+                    int fahrenheitK = getInput("Fahrenheit", "Kelvin");
+                    loadConverter("Fahrenheit to Kelvin", fahrenheitK);
+                }
+                case 5 -> {
+                    int kelvinC = getInput("Kelvin", "Celsius");
+                    loadConverter("Kelvin to Celsius", kelvinC);
+                }
+                case 6 -> {
+                    int kelvinF = getInput("Kelvin", "Fahrenheit");
+                    loadConverter("Kelvin to Fahrenheit", kelvinF);
+                }
+                case 7 -> {
+                    System.out.println("Exiting program...");
+                    scanner.close();
+                }
+                default -> System.out.println("Invalid option! Please choose again.");
             }
-            case 2 -> {
-                int celsiusK = getInput("Celsius", "Kelvin");
-                loadConverter(celsiusK);
-            }
-            case 3 -> {
-                int fahrenheitC = getInput("Fahrenheit", "Celsius");
-                loadConverter(fahrenheitC);
-            }
-            case 4 -> {
-                int fahrenheitK = getInput("Fahrenheit", "Kelvin");
-                loadConverter(fahrenheitK);
-            }
-            case 5 -> {
-                int kelvinC = getInput("Kelvin", "Celsius");
-                loadConverter(kelvinC);
-            }
-            case 6 -> {
-                int kelvinF = getInput("Kelvin", "Fahrenheit");
-                loadConverter(kelvinF);
-            }
-            case 7 -> System.out.println("Exiting program...");
-            default -> System.out.println("Invalid option! Please choose again.");
-        }
-        scanner.close();
+        } while (choice != 7);
     }
+
     public static int inputMenu() {
         System.out.println(
                 """                       
@@ -53,7 +59,12 @@ public class Main {
                         7. Exit
                         Enter your choice:
                         """);
-        choice = scanner.nextInt();
+        try {
+            choice = scanner.nextInt();
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input! Please enter a number.");
+            scanner.next();
+        }
 
         return choice;
     }
@@ -70,10 +81,12 @@ public class Main {
         }
     }
 
-    public static void loadConverter(int value) {
+    public static void loadConverter(String conversion, int value) {
         ServiceLoader<TemperatureConverter> loader = ServiceLoader.load(TemperatureConverter.class);
         for (TemperatureConverter converter : loader) {
-            System.out.println(converter.converter(value));
+            if (converter.getClass().getAnnotation(Scale.class).name().equals(conversion)) {
+                System.out.println(converter.converter(value) + "/n");
+            }
         }
     }
 }
