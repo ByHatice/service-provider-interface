@@ -7,85 +7,88 @@ import java.util.*;
 public class Main {
 
     private static Scanner scanner = new Scanner(System.in);
-    private static int choice;
+    private static ServiceLoader<TemperatureConverter> loader = ServiceLoader.load(TemperatureConverter.class);
+
 
     public static void main(String[] args) {
 
+        int choice;
+
         do {
-            inputMenu();
-            switch (choice) {
-                case 1 -> {
-                    int celsiusF = getInput("Celsius", "Fahrenheit");
-                    loadConverter("Celsius to Fahrenheit", celsiusF);
+            try {
+                inputMenu();
+                choice = scanner.nextInt();
+                switch (choice) {
+                    case 1 -> {
+                        double inputValueC = getInput();
+                        loadConverter(inputValueC, "Celsius", "°C");
+                    }
+                    case 2 -> {
+                        double inputValueF = getInput();
+                        loadConverter(inputValueF, "Fahrenheit", "°F");
+                    }
+                    case 3 -> {
+                        double inputValueK = getInput();
+                        loadConverter(inputValueK, "Kelvin", "K");
+                    }
+                    case 4 -> {
+                        System.out.println("Exiting program...");
+                        scanner.close();
+                        return;
+                    }
+                    default -> System.out.println("Invalid option! Please choose again.");
                 }
-                case 2 -> {
-                    int celsiusK = getInput("Celsius", "Kelvin");
-                    loadConverter("Celsius to Kelvin", celsiusK);
-                }
-                case 3 -> {
-                    int fahrenheitC = getInput("Fahrenheit", "Celsius");
-                    loadConverter("Fahrenheit to Celsius", fahrenheitC);
-                }
-                case 4 -> {
-                    int fahrenheitK = getInput("Fahrenheit", "Kelvin");
-                    loadConverter("Fahrenheit to Kelvin", fahrenheitK);
-                }
-                case 5 -> {
-                    int kelvinC = getInput("Kelvin", "Celsius");
-                    loadConverter("Kelvin to Celsius", kelvinC);
-                }
-                case 6 -> {
-                    int kelvinF = getInput("Kelvin", "Fahrenheit");
-                    loadConverter("Kelvin to Fahrenheit", kelvinF);
-                }
-                case 7 -> {
-                    System.out.println("Exiting program...");
-                    scanner.close();
-                }
-                default -> System.out.println("Invalid option! Please choose again.");
+            } catch (InputMismatchException e) {
+                System.out.println("An error occurred. Please try again.");
+                scanner.next();
             }
-        } while (choice != 7);
+        } while (true);
     }
 
-    public static int inputMenu() {
+    public static void inputMenu() {
         System.out.println(
-                """                       
-                        1. Celsius to Fahrenheit
-                        2. Celsius to Kelvin
-                        3. Fahrenheit to Celsius
-                        4. Fahrenheit to Kelvin
-                        5. Kelvin to Celsius
-                        6. Kelvin to Fahrenheit
-                        7. Exit
+                """  
+               Choose an option to convert temperature to other scale:
+                        1. Convert from Celsius
+                        2. Convert from Fahrenheit
+                        3. Convert from Kelvin
+                        4. Exit
                         Enter your choice:
                         """);
+    }
+
+    public static double getInput() {
+        System.out.println("Please enter a value to convert: ");
         try {
-            choice = scanner.nextInt();
+            return scanner.nextDouble();
         } catch (InputMismatchException e) {
             System.out.println("Invalid input! Please enter a number.");
             scanner.next();
-        }
-
-        return choice;
-    }
-
-    public static int getInput(String fromUnit, String toUnit) {
-        System.out.printf("Please enter the temperature in %s to convert it to %s: %n", fromUnit, toUnit);
-        while (true) {
-            if (scanner.hasNextInt()) {
-                return scanner.nextInt();
-            } else {
-                System.out.println("Invalid input! Please enter a number.");
-                scanner.next();
-            }
+            return getInput();
         }
     }
 
-    public static void loadConverter(String conversion, int value) {
-        ServiceLoader<TemperatureConverter> loader = ServiceLoader.load(TemperatureConverter.class);
+    public static void loadConverter(double value, String annotation, String symbol) {
         for (TemperatureConverter converter : loader) {
-            if (converter.getClass().getAnnotation(Scale.class).name().equals(conversion)) {
-                System.out.println(converter.converter(value) + "\n");
+            if (converter.getClass().getAnnotation(Scale.class).name().equals(annotation)) {
+                System.out.println(value + " " + symbol + " is equal to:");
+                switch (annotation) {
+                    case "Celsius":
+                        System.out.println(converter.toKelvin(value) + " K");
+                        System.out.println(converter.toFahrenheit(value) + " °F" + "\n");
+                        break;
+                    case "Fahrenheit":
+                        System.out.println(converter.toCelsius(value) + " °C");
+                        System.out.println(converter.toKelvin(value) + " K" + "\n");
+                        break;
+                    case "Kelvin":
+                        System.out.println(converter.toCelsius(value) + " °C");
+                        System.out.println(converter.toFahrenheit(value) + " °F" + "\n");
+                        break;
+                    default:
+                        System.out.println("Invalid scale.");
+                        break;
+                }
             }
         }
     }

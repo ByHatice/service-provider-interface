@@ -2,5 +2,7 @@ package se.iths.service;
 
 public interface TemperatureConverter {
 
-    public double converter(double tempurature);
+    double toCelsius(double temperature);
+    double toFahrenheit(double temperature);
+    double toKelvin(double temperature);
 }
