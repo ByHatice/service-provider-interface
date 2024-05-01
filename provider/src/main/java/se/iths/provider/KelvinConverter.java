@@ -7,17 +7,17 @@ import se.iths.service.TemperatureConverter;
 public class KelvinConverter implements TemperatureConverter {
 
     @Override
-    public double toCelsius(double temperature) {
+    public double celsius(double temperature) {
         return temperature - 273.15;
     }
 
     @Override
-    public double toFahrenheit(double temperature) {
+    public double fahrenheit(double temperature) {
         return temperature * 9/5 - 459.67;
     }
 
     @Override
-    public double toKelvin(double temperature) {
+    public double kelvin(double temperature) {
         return temperature;
     }
 }
